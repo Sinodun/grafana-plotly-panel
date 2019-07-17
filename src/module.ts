@@ -96,11 +96,16 @@ class PlotlyPanelCtrl extends MetricsPanelCtrl {
         legend: {
           orientation: 'h',
           traceorder: 'normal',
+          font: {
+            family: 'Roboto, Helvetica, Arial, sans-serif',
+            size: 11,
+          },
         },
         dragmode: 'lasso', // (enumerated: "zoom" | "pan" | "select" | "lasso" | "orbit" | "turntable" )
         hovermode: 'closest',
         font: {
-          family: '"Open Sans", Helvetica, Arial, sans-serif',
+          family: 'Roboto, Helvetica, Arial, sans-serif',
+          size: 10.8,
         },
         xaxis: {
           showgrid: true,
@@ -112,6 +117,10 @@ class PlotlyPanelCtrl extends MetricsPanelCtrl {
           ticks: 'outside',
           tick0: 0,
           dtick: 1,
+          titlefont: {
+            family: 'Roboto, Helvetica, Arial, sans-serif',
+            size: 12,
+          },
         },
         yaxis: {
           showgrid: true,
@@ -123,6 +132,10 @@ class PlotlyPanelCtrl extends MetricsPanelCtrl {
           ticks: 'outside',
           tick0: 0,
           dtick: 1,
+          titlefont: {
+            family: 'Roboto, Helvetica, Arial, sans-serif',
+            size: 12,
+          },
         },
         zaxis: {
           showgrid: true,
@@ -134,6 +147,10 @@ class PlotlyPanelCtrl extends MetricsPanelCtrl {
           ticks: 'outside',
           tick0: 0,
           dtick: 1,
+          titlefont: {
+            family: 'Roboto, Helvetica, Arial, sans-serif',
+            size: 12,
+          },
         },
       },
     },
@@ -144,6 +161,7 @@ class PlotlyPanelCtrl extends MetricsPanelCtrl {
   series: SeriesWrapper[];
   seriesByKey: Map<string, SeriesWrapper> = new Map();
   seriesHash = '?';
+  seriesIsTimeseries = true;
 
   traces: any[]; // The data sent directly to Plotly -- with a special __copy element
   layout: any; // The layout used by Plotly
@@ -514,6 +532,11 @@ class PlotlyPanelCtrl extends MetricsPanelCtrl {
           return;
         }
 
+        if (!this.seriesIsTimeseries) {
+          console.log('Not timeseries data, time zoom disabled');
+          return;
+        }
+
         if (data.points.length === 0) {
           console.log('Nothing Selected', data);
           return;
@@ -600,6 +623,7 @@ class PlotlyPanelCtrl extends MetricsPanelCtrl {
       }
 
       const useRefID = dataList.length === this.panel.targets.length;
+      this.seriesIsTimeseries = true;
       dataList.forEach((series, sidx) => {
         let refId = '';
         if (autotrace) {
@@ -624,6 +648,8 @@ class PlotlyPanelCtrl extends MetricsPanelCtrl {
         } else {
           console.error('Unsupported Series response', sidx, series);
         }
+        if (series.type === 'table')
+          this.seriesIsTimeseries = false;
       });
     }
     this.seriesByKey.clear();
